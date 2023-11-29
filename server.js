@@ -8,7 +8,7 @@ const cors = require('cors');
 
 
 const corsOptions = {
-    origin: 'http://127.0.0.1:5500', // Allow requests from this specific URL
+    origin: 'https://auction.smaster.live/', // Allow requests from this specific URL
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed HTTP methods
   };
 app.use(cors(corsOptions));
