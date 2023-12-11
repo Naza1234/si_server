@@ -21,42 +21,45 @@ exports.endAuction = async () => {
         
         for (let i = 0; i < data.length; i++) {
             const element = data[i];
-            if (element.ProductAuctionEndData < formattedDateTime  && !element.ProductAuctionEnded) {
-            Product.updateOne(
-                    { _id: element._id }, // Use the unique identifier for the document, often _id
-                    { $set: { ProductAuctionEnded: true } }, // Update the field to true
-                );
-             var vdata=await VDB.find({ _id: element.VendorID });
-            var vamount=vdata.vendorEarning+element.ProductAuctionPrice
-            VDB.updateOne(
-                { _id: vdata._id }, // Use the unique identifier for the document, often _id
-                { $set: {  vendorEarning: vamount } }, // Update the field to true
-            );
-             const auctions = await auction.find({ ProductID: element._id });
-
-             // Initialize actionwinner as null to start
-             var actionwinner = null;
-             var highestAmount = -1; // Initialize with a low value, assuming Amount is non-negative
-             
-             // Loop through the auctions
-             for (const auctionObj of auctions) {
-                 if (auctionObj.Amount > highestAmount) {
-                     // If the current auction has a higher Amount, update actionwinner
-                     // Now, actionwinner contains the object with the highest Amount
-                     actionwinner = auctionObj;
-                     highestAmount = auctionObj.Amount;
-                 }
-             }
-              const user=await userDB.find({ _id: actionwinner.userID });
-             SendGmail(user.UserEmail,element.ProductName,element.ProductAuctionPrice, () => {
-              // Callback function is executed after sending the email
-              // Send the response
-          });
-             var params={
-                itemID:element._id,
-                UserID:user._id,
-             }
-              const cartItem=await cart.create(params)
+            if (!element.ProductAuctionEnded) {
+            
+              if (element.ProductAuctionEndData < formattedDateTime ) {
+              Product.updateOne(
+                      { _id: element._id }, // Use the unique identifier for the document, often _id
+                      { $set: { ProductAuctionEnded: true } }, // Update the field to true
+                  );
+               var vdata=await VDB.find({ _id: element.VendorID });
+              var vamount=vdata.vendorEarning+element.ProductAuctionPrice
+              VDB.updateOne(
+                  { _id: vdata._id }, // Use the unique identifier for the document, often _id
+                  { $set: {  vendorEarning: vamount } }, // Update the field to true
+              );
+               const auctions = await auction.find({ ProductID: element._id });
+  
+               // Initialize actionwinner as null to start
+               var actionwinner = null;
+               var highestAmount = -1; // Initialize with a low value, assuming Amount is non-negative
+               
+               // Loop through the auctions
+               for (const auctionObj of auctions) {
+                   if (auctionObj.Amount > highestAmount) {
+                       // If the current auction has a higher Amount, update actionwinner
+                       // Now, actionwinner contains the object with the highest Amount
+                       actionwinner = auctionObj;
+                       highestAmount = auctionObj.Amount;
+                   }
+               }
+                const user=await userDB.find({ _id: actionwinner.userID });
+               SendGmail(user.UserEmail,element.ProductName,element.ProductAuctionPrice, () => {
+                // Callback function is executed after sending the email
+                // Send the response
+            });
+               var params={
+                  itemID:element._id,
+                  UserID:user._id,
+               }
+                const cartItem=await cart.create(params)
+              }
             }
              
         }
