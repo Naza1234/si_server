@@ -453,10 +453,10 @@ exports.getProducts=async(req,res)=>{
         }
         for (let i = 0; i < combinedDataAndImages.length; i++) {
             const element = combinedDataAndImages[i];
-            if (element.ProductAuctionStartData > formattedDateTime  && !element.ProductAuctionEnded) {
+            if (element.ProductAuctionStartData > formattedDateTime && !element.ProductAuctionEnded) {
                 ProductWithAuctionAboutToStart.push(element)
             }
-            if(element.ProductAuctionStartData < formattedDateTime && element.ProductAuctionEndData > formattedDateTime  && !element.ProductAuctionEnded){
+            if(element.ProductAuctionStartData < formattedDateTime && !element.ProductAuctionEnded){
                 ProductWithActiveAuction.push(element)
             }
         }
