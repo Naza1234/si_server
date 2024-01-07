@@ -18,6 +18,11 @@ const VendorSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    vendorVerificationStatus: {
+        type: String,
+        required: true,
+        default:pending
+    },
     vendorMobile: {
         type: String,
         required: true

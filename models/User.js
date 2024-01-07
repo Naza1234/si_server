@@ -49,6 +49,21 @@ UserSchema.pre('save', async function(next) {
         return next(error);
     }
 });
+UserSchema.pre('findOneAndUpdate', async function(next) {
+    try {
+      // Check if the UserPassword field is present in the update data
+      if (this._update.UserPassword) {
+        // Generate a salt and hash the new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(this._update.UserPassword, salt);
+        this._update.UserPassword = hashedPassword;
+      }
+  
+      next();
+    } catch (error) {
+      return next(error);
+    }
+  });
 
 const User = mongoose.model('User', UserSchema);
 

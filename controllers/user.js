@@ -644,20 +644,27 @@ exports.GetSingleUsers= async (req,res)=>{
 
 
 exports.UpdateSingleUsers=async (req,res)=>{
-    try {
-        
+  const { id } = req.params;
 
-        const{id}=req.params
-        const data=await DB.findByIdAndUpdate(id,req.body)
-        
-        res.status(200).json(data)
-
-
-    } catch (error) {
-        res.status(500).json({
-            message:error.message
-          }) 
+  // Check if id is a valid ObjectId (assuming _id is always an ObjectId)
+  const isObjectId = mongoose.Types.ObjectId.isValid(id);
+  
+  // Define the query based on the type of identifier provided
+  const query = isObjectId ? { _id: id } : { UserEmail: id };
+  
+  try {
+    const data = await DB.findOneAndUpdate(query, req.body, { new: true });
+  
+    if (!data) {
+      return res.status(404).json({ error: 'User not found' });
     }
+  
+    res.status(200).json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+  
 }
 
 
@@ -677,3 +684,133 @@ exports.DeleteSingleUsers= async(req,res)=>{
           }) 
     }
 }
+
+
+exports.verifyUserEmail= async(req,res)=>{
+  try {  
+    const{id}=req.params
+		var digits = '0123456789';
+		var otp = '';
+		for (var i = 0; i < 6; i++) {
+		  otp += digits[Math.floor(Math.random() * 10)];
+		}
+        let html =`
+        <body style="background-color: #ffffff; margin: 0; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;">
+        <table class="nl-container" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff;">
+          <tbody>
+            <tr>
+              <td>
+                <table class="row row-1" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                  <tbody>
+                    <tr>
+                      <td>
+                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; color: #000000; width: 600px;" width="600">
+                          <tbody>
+                            <tr>
+                              <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                <table class="heading_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                  <tbody><tr>
+                                    <td class="pad">
+                                      <h1 style="margin: 0; color: #0900a5; direction: ltr; font-family: Arial, Helvetica, sans-serif; font-size: 20px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">Dear [${req.body.name}],</span></h1>
+                                    </td>
+                                  </tr>
+                                </tbody></table>
+                                <table class="paragraph_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                  <tbody><tr>
+                                    <td class="pad">
+                                      <div style="color:#101112;direction:ltr;font-family:Arial, Helvetica, sans-serif;font-size:20px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:left;mso-line-height-alt:24px;">
+                                        <p style="margin: 0; margin-bottom: 16px;">Thank you for registering for an account on smaster.live.</p>
+                                        <p style="margin: 0;">To verify your account, please enter the following code in the verification field on the smaster.live website:</p>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                </tbody></table>
+                                <table class="heading_block block-3" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                  <tbody><tr>
+                                    <td class="pad" style="padding-bottom:30px;padding-left:10px;padding-right:10px;padding-top:30px;text-align:center;width:100%;">
+                                      <h1 style="margin: 0; color: #0900a5; direction: ltr; font-family: Arial, Helvetica, sans-serif; font-size: 21px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0;"><span class="tinyMce-placeholder">[${otp}]</span></h1>
+                                    </td>
+                                  </tr>
+                                </tbody></table>
+                                <table class="paragraph_block block-4" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                  <tbody><tr>
+                                    <td class="pad">
+                                      <div style="color:#101112;direction:ltr;font-family:Arial, Helvetica, sans-serif;font-size:20px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:left;mso-line-height-alt:24px;">
+                                        <p style="margin: 0; margin-bottom: 16px;">This code is valid for 15 minutes. If you do not enter the code within 15 minutes, you will need to request a new code.</p>
+                                        <p style="margin: 0; margin-bottom: 16px;">If you have any questions, please do not hesitate to contact us.</p>
+                                        <p style="margin: 0; margin-bottom: 16px;">Sincerely,</p>
+                                        <p style="margin: 0;">The <strong>smaster.live</strong> Team</p>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                </tbody></table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table class="row row-2" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                  <tbody>
+                    <tr>
+                      <td>
+                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; color: #000000; width: 600px;" width="600">
+                          <tbody>
+                            <tr>
+                              <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                <table class="icons_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                  </table>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table><!-- End -->
+      
+      
+      
+      </body>
+		`
+		 const APIKEY=process.env.EMAIL_AIP_KEY
+		var transporter = nodemailer.createTransport({
+		  service: "gmail",
+        auth: {
+            user : "smasterauction56@gmail.com",
+            pass: APIKEY
+        }
+		})
+		const message = {
+				from: 'smasterauction56@gmail.com', // sender address
+				to:id, // list of receivers
+				subject: "verification code from smaster.live", // Subject line
+				html:html, 
+			}
+			transporter.sendMail(message,(error,info)=>{
+				if(error){
+					res.status(500).json({
+								      message:error
+							   })
+				}else{
+					res.status(200).json({
+									   code:otp
+								  })
+				}
+				
+			})
+	
+        
+    } catch (error) {
+        res.status(500).json({
+            message:error.message
+          }) 
+    }
+}
+
