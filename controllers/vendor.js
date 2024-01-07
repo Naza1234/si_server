@@ -527,7 +527,6 @@ exports.GetSingleUsers= async (req,res)=>{
     try {
         const{id}=req.params
         const data=await DB.findById(id)
-      
         
          res.status(200).json(data)
 
