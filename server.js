@@ -1,69 +1,65 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose')
-
+const mongoose = require('mongoose');
 const cors = require('cors');
 
-
-
 const corsOptions = {
-    origin: 'https://smaster.live', // Allow requests from this specific URL
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed HTTP methods
-  };
+  origin: 'http://autoauction.space',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+};
+
 app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use("/image",express.static("./image"))
+app.use("/image", express.static("./image"));
+
+// Import all routes
+const userRoutes = require('./routes/userRoutes');
+const productRoutes = require('./routes/productRoutes');
+const auctionRoutes = require('./routes/auctionRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const withdrawalRoutes = require('./routes/withdrawalRoutes');
+const productImageRoutes = require('./routes/productsImageRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const carDetailsRoutes = require('./routes/carDetailsRoutes');
+const garageDetailsRoutes = require('./routes/garageDetailsRoutes');
+const conversationRoute = require('./routes/conversation.route');
+const auctionWinnerRoute = require("./routes/auctionWinnerRoutes");
+const endAuctionRoutes = require('./routes/endAuctionRoutes');
 
 
+// Use the routes
+app.use("/user", userRoutes);
+app.use("/products", productRoutes);
+app.use("/auction", auctionRoutes);
+app.use("/payments", paymentRoutes);
+app.use("/withdrawal", withdrawalRoutes);
+app.use("/productImage", productImageRoutes);
+app.use("/notifications", notificationRoutes);
+app.use("/car-details", carDetailsRoutes);
+app.use("/garage-details", garageDetailsRoutes);
+app.use('/conversations', conversationRoute);
+app.use("/auctionWinner", auctionWinnerRoute);
+app.use("/endAuction", endAuctionRoutes);
 
 
-    // All Routes in this API
-
-    const UserRoute = require("./routes/userRouts");
-    app.use("/user",UserRoute)  
-
-    const vendorRoute = require("./routes/vendor");
-    app.use("/vendor",vendorRoute)  
-
-    const productsRoute = require("./routes/products");
-    app.use("/products",productsRoute)  
-
-    const AuctionRoute = require("./routes/Auction");
-    app.use("/Auction",AuctionRoute)  
-
-    const cartRoute = require("./routes/cart");
-    app.use("/cart",cartRoute)  
-
-    const paymentsRoute = require("./routes/payments");
-    app.use("/payments",paymentsRoute)  
-
-    const withdrawalRoute = require("./routes/withdrawal");
-    app.use("/withdrawal",withdrawalRoute) 
-
-    const productImageRoute = require("./routes/productImage");
-    app.use("/productImage",productImageRoute)  
-
-
-// data base connection
-
-const url="mongodb+srv://actionwebsite:chibuike123@cluster0.v22hskb.mongodb.net/?retryWrites=true&w=majority"
-
-const port=3000
-
-
-
+// Database connection
+const url = "mongodb+srv://autoauctionwebsite:autoauctionwebsitedatabase@cluster0.9u9dp11.mongodb.net/?retryWrites=true&w=majority";
+const port = 3000;
+// autoauctionwebsitedatabase
+// autoauctionwebsite
 mongoose
-.connect(url)
-.then(()=>{
-    console.log('since with database made');
+  .connect(url)
+  .then(() => {
+    console.log('Connected to the database');
     app.use("/",(req,res)=>{
         res.end('origin')
       })
-    app.listen(port,()=>{
-        console.log(`server is now running on ${port} `);
-    })
-}).catch((error)=>{
+    app.listen(port, () => {
+      console.log(`Server is now running on http://localhost:${port}`);
+    });
+  })
+  .catch((error) => {
     console.log(error.message);
-})
+  });
